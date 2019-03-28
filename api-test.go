@@ -20,24 +20,35 @@ import (
 
 var tokenAuth *jwtauth.JWTAuth
 
+type JWTInfo struct {
+	Algorithm string
+	Issuer    string
+	Key       interface{}
+}
+
+var Keys map[string]JWTInfo
+
 // Authorization: Bearer eyJhbGciOiJIUzI1NiIsImtpZCI6IjEyMzQiLCJ0eXAiOiJKV1QifQ.eyJleHAiOjE1NTM3MTMwMDUsImlhdCI6MTU1MzcxMjQwNSwiaXNzIjoid2VidG9rZW4ifQ.NrpWNLv_KcdjOSK6GSsvRcaRj6tIGgCu7RKqKmp9Q2k
 func init() {
 
+	kid := "1234"
+	Keys = map[string]JWTInfo{kid: {Algorithm: "HS256", Issuer: "webtoken", Key: []byte("secret")}}
+
 	tokenAuth = jwtauth.NewWithParser(
-		"HS256",
+		Keys[kid].Algorithm,
 		&jwt.Parser{
 			ValidMethods: []string{"HS256", "RS256", "RS512"},
 		},
-		[]byte("secret"),
+		Keys[kid].Key,
 		nil, keyFunc)
 
 	// Create the Claims
 	claims := jwt.StandardClaims{
-		Issuer:    "webtoken",
+		Issuer:    Keys[kid].Issuer,
 		IssuedAt:  time.Now().Unix(),
 		ExpiresAt: time.Now().Add(time.Second * 20).Unix(),
 	}
-	header := map[string]interface{}{"kid": "1234"}
+	header := map[string]interface{}{"kid": kid}
 	_, tokenString, _ := tokenAuth.Encode(claims, header)
 	fmt.Printf("http://localhost:3000/api/v1?jwt=%s\n\n", tokenString)
 }
@@ -77,10 +88,7 @@ func main() {
 }
 
 func keyFunc(t *jwt.Token) (interface{}, error) {
-	//alg := t.Method.Alg()
-	//kid := t.Header["kid"].(string)
-	//fmt.Println(kid, alg)
-	return []byte("secret"), nil
+	return Keys[t.Header["kid"].(string)].Key, nil
 }
 
 func authenticator(next http.Handler) http.Handler {
