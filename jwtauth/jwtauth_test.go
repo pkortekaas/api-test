@@ -43,7 +43,9 @@ DLxxa5/7QyH6y77nCRQyJ3x3UwF9rUD0RCsp4sNdX5kOQ9PUyHyOtCUCAwEAAQ==
 )
 
 func init() {
-	TokenAuthHS256 = jwtauth.New("HS256", TokenSecret, nil, nil)
+	TokenAuthHS256 = jwtauth.NewWithParser(&jwt.Parser{
+		ValidMethods: []string{"HS256"},
+	}, TokenSecret, nil)
 }
 
 //
@@ -67,7 +69,10 @@ func TestSimpleRSA(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 
-	TokenAuthRS256 = jwtauth.New("RS256", privateKey, publicKey, nil)
+	TokenAuthRS256 = jwtauth.New(privateKey,
+		func(t *jwt.Token) (interface{}, error) {
+			return publicKey, nil
+		})
 
 	claims := jwt.MapClaims{
 		"key":  "val",
@@ -75,7 +80,7 @@ func TestSimpleRSA(t *testing.T) {
 		"key3": "val3",
 	}
 
-	_, tokenString, err := TokenAuthRS256.Encode(claims, nil)
+	_, tokenString, err := TokenAuthRS256.Encode("RS256", claims, nil)
 
 	if err != nil {
 		t.Fatalf("Failed to encode claims %s\n", err.Error())

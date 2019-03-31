@@ -28,29 +28,25 @@ var (
 )
 
 type JWTAuth struct {
-	signKey   interface{}
-	verifyKey interface{}
-	signer    jwt.SigningMethod
-	parser    *jwt.Parser
-	keyFunc   jwt.Keyfunc
+	signKey interface{}
+	parser  *jwt.Parser
+	keyFunc jwt.Keyfunc
 }
 
 // New creates a JWTAuth authenticator instance that provides middleware handlers
 // and encoding/decoding functions for JWT signing.
-func New(alg string, signKey interface{}, verifyKey interface{}, keyFunc jwt.Keyfunc) *JWTAuth {
-	return NewWithParser(alg, &jwt.Parser{}, signKey, verifyKey, keyFunc)
+func New(signKey interface{}, keyFunc jwt.Keyfunc) *JWTAuth {
+	return NewWithParser(&jwt.Parser{}, signKey, keyFunc)
 }
 
 // NewWithParser is the same as New, except it supports custom parser settings
 // introduced in jwt-go/v2.4.0.
-func NewWithParser(alg string, parser *jwt.Parser, signKey interface{}, verifyKey interface{},
+func NewWithParser(parser *jwt.Parser, signKey interface{},
 	keyFunc jwt.Keyfunc) *JWTAuth {
 	return &JWTAuth{
-		signKey:   signKey,
-		verifyKey: verifyKey,
-		signer:    jwt.GetSigningMethod(alg),
-		parser:    parser,
-		keyFunc:   keyFunc,
+		signKey: signKey,
+		parser:  parser,
+		keyFunc: keyFunc,
 	}
 }
 
@@ -126,16 +122,16 @@ func VerifyRequest(ja *JWTAuth, r *http.Request, findTokenFns ...func(r *http.Re
 	}
 
 	// Verify signing algorithm
-	if token.Method != ja.signer {
-		return token, ErrAlgoInvalid
-	}
+	//if token.Method != ja.signer {
+	//	return token, ErrAlgoInvalid
+	//}
 
 	// Valid!
 	return token, nil
 }
 
-func (ja *JWTAuth) Encode(claims jwt.Claims, header map[string]interface{}) (t *jwt.Token, tokenString string, err error) {
-	t = jwt.New(ja.signer)
+func (ja *JWTAuth) Encode(alg string, claims jwt.Claims, header map[string]interface{}) (t *jwt.Token, tokenString string, err error) {
+	t = jwt.New(jwt.GetSigningMethod(alg))
 	t.Claims = claims
 	for k, v := range header {
 		t.Header[k] = v
@@ -149,21 +145,16 @@ func (ja *JWTAuth) Decode(tokenString string) (t *jwt.Token, err error) {
 	if ja.keyFunc != nil {
 		t, err = ja.parser.Parse(tokenString, ja.keyFunc)
 	} else {
-		t, err = ja.parser.Parse(tokenString, ja.parseKeyFunc)
+		t, err = ja.parser.Parse(tokenString,
+			func(t *jwt.Token) (interface{}, error) {
+				return ja.signKey, nil
+			})
 	}
 
 	if err != nil {
 		return nil, err
 	}
 	return
-}
-
-func (ja *JWTAuth) parseKeyFunc(t *jwt.Token) (interface{}, error) {
-	if ja.verifyKey != nil {
-		return ja.verifyKey, nil
-	} else {
-		return ja.signKey, nil
-	}
 }
 
 // Authenticator is a default authentication middleware to enforce access from the
