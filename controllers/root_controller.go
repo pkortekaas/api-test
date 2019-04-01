@@ -1,12 +1,12 @@
 package controllers
 
 import (
-	"api-test/jwtauth"
-	"api-test/render"
 	"net/http"
 	"time"
 
 	"github.com/go-chi/chi"
+	"github.com/pkortekaas/api-test/jwtauth"
+	"github.com/pkortekaas/api-test/render"
 )
 
 func RootController() *chi.Mux {
