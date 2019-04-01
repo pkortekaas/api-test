@@ -1,9 +1,6 @@
 package main
 
 import (
-	"api-test/controllers"
-	"api-test/jwtauth"
-	"api-test/render"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
@@ -16,6 +13,9 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/pkortekaas/api-test/controllers"
+	"github.com/pkortekaas/api-test/jwtauth"
+	"github.com/pkortekaas/api-test/render"
 )
 
 // https://github.com/go-chi/chi
