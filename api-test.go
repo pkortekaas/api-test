@@ -1,9 +1,9 @@
 package main
 
 import (
-	"api-test/controllers"
-	"api-test/jwtauth"
-	"api-test/render"
+	"github.com/pkortekaas/api-test/controllers"
+	"github.com/pkortekaas/api-test/jwtauth"
+	"github.com/pkortekaas/api-test/render"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
