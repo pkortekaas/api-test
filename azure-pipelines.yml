@@ -29,9 +29,7 @@ steps:
 
 - script: |
     pwd
-    echo '$(System.DefaultWorkingDirectory)'
-    echo '$(Agent.BuildDirectory)'
-    echo '$(Build.SourcesDirectory)'
+    echo '$(modulePath)'
     go version
     go get -v -t -d ./...
     if [ -f Gopkg.toml ]; then
@@ -45,7 +43,7 @@ steps:
 
 - task: CopyFiles@2
   inputs:
-    SourceFolder: '$(Agent.BuildDirectory)'
+    SourceFolder: '$(modulePath)'
     Contents: '*'
     TargetFolder: '$(Build.ArtifactStagingDirectory)'
     CleanTargetFolder: true
