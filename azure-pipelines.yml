@@ -40,7 +40,7 @@ steps:
 
 - task: CopyFiles@2
   inputs:
-   Contents: 'api-test'
+   Contents: '*'
    TargetFolder: '$(Build.ArtifactStagingDirectory)'
    CleanTargetFolder: true
    OverWrite: true
