@@ -38,6 +38,13 @@ steps:
   workingDirectory: '$(modulePath)'
   displayName: 'Get dependencies, then build'
 
+- task: CopyFiles@2
+  inputs:
+   Contents: 'api-test'
+   TargetFolder: '$(Build.ArtifactStagingDirectory)'
+   CleanTargetFolder: true
+   OverWrite: true
+
 - task: PublishBuildArtifacts@1
   inputs:
     pathtoPublish: '$(Build.ArtifactStagingDirectory)'
