@@ -28,6 +28,9 @@ steps:
   displayName: 'Set up the Go workspace'
 
 - script: |
+    pwd
+    echo '$(Agent.BuildDirectory)'
+    echo '$(Build.SourcesDirectory)'
     go version
     go get -v -t -d ./...
     if [ -f Gopkg.toml ]; then
