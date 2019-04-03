@@ -28,8 +28,6 @@ steps:
   displayName: 'Set up the Go workspace'
 
 - script: |
-    pwd
-    echo '$(modulePath)'
     go version
     go get -v -t -d ./...
     if [ -f Gopkg.toml ]; then
@@ -44,7 +42,7 @@ steps:
 - task: CopyFiles@2
   inputs:
     SourceFolder: '$(modulePath)'
-    Contents: '*'
+    Contents: 'api-test'
     TargetFolder: '$(Build.ArtifactStagingDirectory)'
     CleanTargetFolder: true
     OverWrite: true
