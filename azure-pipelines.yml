@@ -29,6 +29,7 @@ steps:
 
 - script: |
     pwd
+    echo '$(System.DefaultWorkingDirectory)'
     echo '$(Agent.BuildDirectory)'
     echo '$(Build.SourcesDirectory)'
     go version
@@ -38,6 +39,7 @@ steps:
         dep ensure
     fi
     go build -v .
+    ls -l
   workingDirectory: '$(modulePath)'
   displayName: 'Get dependencies, then build'
 
